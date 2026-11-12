@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuração inicial</title>
+</head>
+<body>
+    <main>
+        <h1>Controle Simplificado de Validade</h1>
+        <h2>Criar primeiro usuário</h2>
+
+        {% with mensagens = get_flashed_messages() %}
+            {% for mensagem in mensagens %}
+                <p>{{ mensagem }}</p>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST">
+            <label for="usuario">Usuário:</label>
+            <input
+                type="text"
+                id="usuario"
+                name="usuario"
+                minlength="3"
+                required
+                autocomplete="username"
+            >
+
+            <label for="senha">Senha:</label>
+            <input
+                type="password"
+                id="senha"
+                name="senha"
+                minlength="8"
+                required
+                autocomplete="new-password"
+            >
+
+            <button type="submit">Criar usuário</button>
+        </form>
+    </main>
+</body>
+</html>
