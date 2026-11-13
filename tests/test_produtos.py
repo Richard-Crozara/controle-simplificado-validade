@@ -41,7 +41,8 @@ def test_cadastro_de_produto_valido(cliente):
             "nome": "Arroz teste",
             "quantidade": "10",
             "validade": validade
-        }
+        },
+        follow_redirects=True
     )
 
     assert resposta.status_code == 200
@@ -61,7 +62,8 @@ def test_cadastro_rejeita_quantidade_zero(cliente):
             "nome": "Produto teste",
             "quantidade": "0",
             "validade": (date.today() + timedelta(days=120)).isoformat()
-        }
+        },
+        follow_redirects=True
     )
 
     assert resposta.status_code == 200
@@ -79,7 +81,8 @@ def test_cadastro_rejeita_quantidade_nao_inteira(cliente):
             "nome": "Produto teste",
             "quantidade": "abc",
             "validade": (date.today() + timedelta(days=120)).isoformat()
-        }
+        },
+        follow_redirects=True
     )
 
     assert resposta.status_code == 200
@@ -97,7 +100,8 @@ def test_cadastro_rejeita_data_invalida(cliente):
             "nome": "Produto teste",
             "quantidade": "5",
             "validade": "data-invalida"
-        }
+        },
+        follow_redirects=True
     )
 
     assert resposta.status_code == 200
