@@ -85,3 +85,39 @@ def criar_usuario(usuario, senha):
         conexao.commit()
     finally:
         conexao.close()
+
+def cadastrar_produto(usuario_id, nome, quantidade, validade):
+    conexao = conectar()
+
+    try:
+        conexao.execute(
+            """
+            INSERT INTO produtos
+                (usuario_id, nome, quantidade, validade)
+            VALUES (?, ?, ?, ?)
+            """,
+            (usuario_id, nome, quantidade, validade)
+        )
+
+        conexao.commit()
+    finally:
+        conexao.close()
+
+
+def listar_produtos(usuario_id):
+    conexao = conectar()
+
+    try:
+        resultado = conexao.execute(
+            """
+            SELECT id, nome, quantidade, validade
+            FROM produtos
+            WHERE usuario_id = ?
+            ORDER BY validade ASC
+            """,
+            (usuario_id,)
+        ).fetchall()
+
+        return resultado
+    finally:
+        conexao.close()
