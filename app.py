@@ -12,6 +12,7 @@ from flask import (
     session,
     url_for
 )
+
 from werkzeug.security import check_password_hash
 
 from database import (
@@ -29,6 +30,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = (
     os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 )
+
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = (
@@ -50,8 +52,8 @@ def login_obrigatorio(funcao):
 @app.route("/")
 @login_obrigatorio
 def inicio():
-    return
-redirect(url_for("produtos"))
+    return redirect(url_for("produtos"))
+
 
 def classificar_validade(validade):
     data_validade = date.fromisoformat(validade)
@@ -85,7 +87,9 @@ def produtos():
                 raise ValueError
 
         except ValueError:
-            flash("A quantidade deve ser um número inteiro maior que zero.")
+            flash(
+                "A quantidade deve ser um número inteiro maior que zero."
+            )
             return redirect(url_for("produtos"))
 
         try:
@@ -121,6 +125,7 @@ def produtos():
         "produtos.html",
         produtos=produtos_lista
     )
+
 
 @app.route("/configurar", methods=["GET", "POST"])
 def configurar():
