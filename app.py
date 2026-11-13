@@ -1,6 +1,7 @@
 import os
 import secrets
 from functools import wraps
+from datetime import date, timedelta
 
 from flask import (
     Flask,
@@ -17,7 +18,9 @@ from database import (
     inicializar_banco,
     existe_usuario,
     buscar_usuario,
-    criar_usuario
+    criar_usuario,
+    cadastrar_produto,
+    listar_produtos
 )
 
 
@@ -47,8 +50,77 @@ def login_obrigatorio(funcao):
 @app.route("/")
 @login_obrigatorio
 def inicio():
-    return "Controle Simplificado de Validade"
+    return
+redirect(url_for("produtos"))
 
+def classificar_validade(validade):
+    data_validade = date.fromisoformat(validade)
+    hoje = date.today()
+
+    if data_validade < hoje:
+        return "Vencido"
+
+    if data_validade <= hoje + timedelta(days=90):
+        return "Atenção"
+
+    return "Dentro do prazo"
+
+
+@app.route("/produtos", methods=["GET", "POST"])
+@login_obrigatorio
+def produtos():
+    if request.method == "POST":
+        nome = request.form.get("nome", "").strip()
+        quantidade_texto = request.form.get("quantidade", "").strip()
+        validade = request.form.get("validade", "").strip()
+
+        if not nome:
+            flash("Informe o nome do produto.")
+            return redirect(url_for("produtos"))
+
+        try:
+            quantidade = int(quantidade_texto)
+
+            if quantidade <= 0:
+                raise ValueError
+
+        except ValueError:
+            flash("A quantidade deve ser um número inteiro maior que zero.")
+            return redirect(url_for("produtos"))
+
+        try:
+            data_validade = date.fromisoformat(validade)
+
+            if data_validade.isoformat() != validade:
+                raise ValueError
+
+        except ValueError:
+            flash("Informe uma data de validade válida.")
+            return redirect(url_for("produtos"))
+
+        cadastrar_produto(
+            session["usuario_id"],
+            nome,
+            quantidade,
+            validade
+        )
+
+        flash("Produto cadastrado com sucesso.")
+        return redirect(url_for("produtos"))
+
+    registros = listar_produtos(session["usuario_id"])
+
+    produtos_lista = []
+
+    for produto in registros:
+        item = dict(produto)
+        item["situacao"] = classificar_validade(item["validade"])
+        produtos_lista.append(item)
+
+    return render_template(
+        "produtos.html",
+        produtos=produtos_lista
+    )
 
 @app.route("/configurar", methods=["GET", "POST"])
 def configurar():
