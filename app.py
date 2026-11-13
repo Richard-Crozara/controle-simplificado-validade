@@ -1,4 +1,5 @@
 import os
+import secrets
 from functools import wraps
 
 from flask import (
@@ -22,7 +23,9 @@ from database import (
 
 app = Flask(__name__)
 
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+app.config["SECRET_KEY"] = (
+    os.environ.get("SECRET_KEY") or secrets.token_hex(32)
+)
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = (
