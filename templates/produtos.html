@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Validade</title>
+</head>
+<body>
+    <main>
+        <h1>Controle Simplificado de Validade</h1>
+
+        <p>Bem-vindo, {{ session["usuario"] }}!</p>
+
+        <form method="POST" action="{{ url_for('logout') }}">
+            <button type="submit">Sair</button>
+        </form>
+
+        <section>
+            <h2>Cadastrar produto</h2>
+
+            {% with mensagens = get_flashed_messages() %}
+                {% for mensagem in mensagens %}
+                    <p>{{ mensagem }}</p>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST">
+                <div>
+                    <label for="nome">Nome do produto:</label>
+                    <input
+                        type="text"
+                        id="nome"
+                        name="nome"
+                        maxlength="150"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="quantidade">Quantidade:</label>
+                    <input
+                        type="number"
+                        id="quantidade"
+                        name="quantidade"
+                        min="1"
+                        step="1"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="validade">Data de validade:</label>
+                    <input
+                        type="date"
+                        id="validade"
+                        name="validade"
+                        required
+                    >
+                </div>
+
+                <button type="submit">Cadastrar produto</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Produtos cadastrados</h2>
+
+            {% if produtos %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Quantidade</th>
+                            <th>Validade</th>
+                            <th>Situação</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for produto in produtos %}
+                            <tr>
+                                <td>{{ produto.nome }}</td>
+                                <td>{{ produto.quantidade }}</td>
+                                <td>{{ produto.validade }}</td>
+                                <td>
+                                    {% if produto.situacao == "Vencido" %}
+                                        <strong>🔴 Vencido</strong>
+                                    {% elif produto.situacao == "Atenção" %}
+                                        <strong>🟡 Atenção</strong>
+                                    {% else %}
+                                        <strong>🟢 Dentro do prazo</strong>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Nenhum produto cadastrado ainda.</p>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>
