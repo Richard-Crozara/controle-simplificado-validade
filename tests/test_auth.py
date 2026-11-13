@@ -81,12 +81,18 @@ def test_login_e_logout(monkeypatch, tmp_path):
     )
 
     assert resposta_login.status_code == 302
+    assert "/produtos" in resposta_login.location
 
     resposta_inicio = cliente.get("/")
-    assert resposta_inicio.status_code == 200
+    assert resposta_inicio.status_code == 302
+    assert "/produtos" in resposta_inicio.location
+
+    resposta_produtos = cliente.get("/produtos")
+    assert resposta_produtos.status_code == 200
 
     resposta_logout = cliente.post("/logout")
     assert resposta_logout.status_code == 302
+    assert "/login" in resposta_logout.location
 
     resposta_protegida = cliente.get("/")
     assert resposta_protegida.status_code == 302
