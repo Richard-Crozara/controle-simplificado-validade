@@ -65,6 +65,7 @@ def test_login_com_senha_incorreta(monkeypatch, tmp_path):
     )
 
 
+
 def test_login_e_logout(monkeypatch, tmp_path):
     preparar_banco(monkeypatch, tmp_path)
 
@@ -80,20 +81,30 @@ def test_login_e_logout(monkeypatch, tmp_path):
         }
     )
 
+    # O login redireciona para a página inicial
     assert resposta_login.status_code == 302
-    assert "/produtos" in resposta_login.location
+    assert resposta_login.location == "/"
 
+    # A página inicial redireciona para produtos
     resposta_inicio = cliente.get("/")
-    assert resposta_inicio.status_code == 302
-    assert "/produtos" in resposta_inicio.location
 
+    assert resposta_inicio.status_code == 302
+    assert resposta_inicio.location == "/produtos"
+
+    # O usuário autenticado consegue acessar os produtos
     resposta_produtos = cliente.get("/produtos")
+
     assert resposta_produtos.status_code == 200
 
+    # O logout encerra a sessão
     resposta_logout = cliente.post("/logout")
+
     assert resposta_logout.status_code == 302
     assert "/login" in resposta_logout.location
 
+    # Depois do logout, o acesso protegido é bloqueado
     resposta_protegida = cliente.get("/")
+
     assert resposta_protegida.status_code == 302
     assert "/login" in resposta_protegida.location
+
