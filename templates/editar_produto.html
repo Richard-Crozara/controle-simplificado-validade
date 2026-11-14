@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar produto - Controle de Validade</title>
+</head>
+<body>
+    <main>
+        <h1>Editar produto</h1>
+
+        {% with mensagens = get_flashed_messages() %}
+            {% for mensagem in mensagens %}
+                <p>{{ mensagem }}</p>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST">
+            <div>
+                <label for="nome">Nome do produto:</label>
+                <input
+                    type="text"
+                    id="nome"
+                    name="nome"
+                    maxlength="150"
+                    value="{{ produto.nome }}"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="quantidade">Quantidade:</label>
+                <input
+                    type="number"
+                    id="quantidade"
+                    name="quantidade"
+                    min="1"
+                    step="1"
+                    value="{{ produto.quantidade }}"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="validade">Data de validade:</label>
+                <input
+                    type="date"
+                    id="validade"
+                    name="validade"
+                    value="{{ produto.validade }}"
+                    required
+                >
+            </div>
+
+            <button type="submit">Salvar alterações</button>
+        </form>
+
+        <p>
+            <a href="{{ url_for('produtos') }}">
+                Voltar para os produtos
+            </a>
+        </p>
+    </main>
+</body>
+</html>
