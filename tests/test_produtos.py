@@ -130,3 +130,36 @@ def test_classificacao_de_validade():
     assert classificar_validade(
         (hoje + timedelta(days=91)).isoformat()
     ) == "Dentro do prazo"
+
+
+def test_listagem_exibe_produto_cadastrado(cliente):
+    validade = (date.today() + timedelta(days=120)).isoformat()
+
+    database.cadastrar_produto(
+        1,
+        "Produto para listagem",
+        5,
+        validade
+    )
+
+    resposta = cliente.get("/produtos")
+
+    assert resposta.status_code == 200
+    assert b"Produto para listagem" in resposta.data
+
+
+def test_usuario_nao_visualiza_produtos_de_outro_usuario(cliente):
+    database.criar_usuario("outro_usuario", "senha5678")
+    outro = database.buscar_usuario("outro_usuario")
+
+    database.cadastrar_produto(
+        outro["id"],
+        "Produto particular",
+        3,
+        (date.today() + timedelta(days=120)).isoformat()
+    )
+
+    resposta = cliente.get("/produtos")
+
+    assert resposta.status_code == 200
+    assert b"Produto particular" not in resposta.data
