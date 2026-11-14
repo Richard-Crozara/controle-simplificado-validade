@@ -13,6 +13,8 @@ from flask import (
     url_for
 )
 
+from flask_wtf.csrf import CSRFProtect
+
 from werkzeug.security import check_password_hash
 
 from database import (
@@ -40,6 +42,7 @@ app.config["SESSION_COOKIE_SECURE"] = (
     os.environ.get("COOKIE_SECURE", "0") == "1"
 )
 
+csrf = CSRFProtect(app)
 
 def login_obrigatorio(funcao):
     @wraps(funcao)
