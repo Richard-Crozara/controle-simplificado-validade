@@ -21,7 +21,10 @@ from database import (
     buscar_usuario,
     criar_usuario,
     cadastrar_produto,
-    listar_produtos
+    listar_produtos,
+    obter_produto,
+    atualizar_produto,
+    excluir_produto
 )
 
 
@@ -125,6 +128,90 @@ def produtos():
         "produtos.html",
         produtos=produtos_lista
     )
+
+
+@app.route("/produtos/<int:produto_id>/editar", methods=["GET", "POST"])
+@login_obrigatorio
+def editar_produto(produto_id):
+    usuario_id = session["usuario_id"]
+    produto = obter_produto(produto_id, usuario_id)
+
+    if produto is None:
+        flash("Produto não encontrado.")
+        return redirect(url_for("produtos"))
+
+    if request.method == "POST":
+        nome = request.form.get("nome", "").strip()
+        quantidade_texto = request.form.get("quantidade", "").strip()
+        validade = request.form.get("validade", "").strip()
+
+        if not nome:
+            flash("Informe o nome do produto.")
+            return redirect(
+                url_for("editar_produto", produto_id=produto_id)
+            )
+
+        try:
+            quantidade = int(quantidade_texto)
+
+            if quantidade <= 0:
+                raise ValueError
+
+        except ValueError:
+            flash(
+                "A quantidade deve ser um número inteiro maior que zero."
+            )
+            return redirect(
+                url_for("editar_produto", produto_id=produto_id)
+            )
+
+        try:
+            data_validade = date.fromisoformat(validade)
+
+            if data_validade.isoformat() != validade:
+                raise ValueError
+
+        except ValueError:
+            flash("Informe uma data de validade válida.")
+            return redirect(
+                url_for("editar_produto", produto_id=produto_id)
+            )
+
+        atualizado = atualizar_produto(
+            produto_id,
+            usuario_id,
+            nome,
+            quantidade,
+            validade
+        )
+
+        if atualizado:
+            flash("Produto atualizado com sucesso.")
+        else:
+            flash("Não foi possível atualizar o produto.")
+
+        return redirect(url_for("produtos"))
+
+    return render_template(
+        "editar_produto.html",
+        produto=produto
+    )
+
+
+@app.route("/produtos/<int:produto_id>/excluir", methods=["POST"])
+@login_obrigatorio
+def excluir_produto_rota(produto_id):
+    excluido = excluir_produto(
+        produto_id,
+        session["usuario_id"]
+    )
+
+    if excluido:
+        flash("Produto excluído com sucesso.")
+    else:
+        flash("Produto não encontrado.")
+
+    return redirect(url_for("produtos"))
 
 
 @app.route("/configurar", methods=["GET", "POST"])
