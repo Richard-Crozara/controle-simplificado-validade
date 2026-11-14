@@ -121,3 +121,60 @@ def listar_produtos(usuario_id):
         return resultado
     finally:
         conexao.close()
+
+
+def obter_produto(produto_id, usuario_id):
+    conexao = conectar()
+
+    try:
+        resultado = conexao.execute(
+            """
+            SELECT id, nome, quantidade, validade
+            FROM produtos
+            WHERE id = ? AND usuario_id = ?
+            """,
+            (produto_id, usuario_id)
+        ).fetchone()
+
+        return resultado
+    finally:
+        conexao.close()
+
+
+def atualizar_produto(
+    produto_id, usuario_id, nome, quantidade, validade
+):
+    conexao = conectar()
+
+    try:
+        resultado = conexao.execute(
+            """
+            UPDATE produtos
+            SET nome = ?, quantidade = ?, validade = ?
+            WHERE id = ? AND usuario_id = ?
+            """,
+            (nome, quantidade, validade, produto_id, usuario_id)
+        )
+
+        conexao.commit()
+        return resultado.rowcount > 0
+    finally:
+        conexao.close()
+
+
+def excluir_produto(produto_id, usuario_id):
+    conexao = conectar()
+
+    try:
+        resultado = conexao.execute(
+            """
+            DELETE FROM produtos
+            WHERE id = ? AND usuario_id = ?
+            """,
+            (produto_id, usuario_id)
+        )
+
+        conexao.commit()
+        return resultado.rowcount > 0
+    finally:
+        conexao.close()
