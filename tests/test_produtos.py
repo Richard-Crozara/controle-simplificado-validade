@@ -299,6 +299,7 @@ def test_exclusao_de_produto_com_sucesso(cliente):
     assert database.obter_produto(produto["id"], 1) is None
 
 
+
 def test_usuario_nao_edita_produto_de_outro_usuario(cliente):
     database.criar_usuario("outro_usuario", "senha5678")
     outro = database.buscar_usuario("outro_usuario")
@@ -312,11 +313,10 @@ def test_usuario_nao_edita_produto_de_outro_usuario(cliente):
 
     produto = database.listar_produtos(outro["id"])[0]
 
-    token = obter_token_csrf(
-        cliente,
-        f"/produtos/{produto['id']}/editar"
-    )
+    # Obtém o token pela página de produtos do usuário autenticado.
+    token = obter_token_csrf(cliente, "/produtos")
 
+    # Tenta editar diretamente o produto de outro usuário.
     resposta = cliente.post(
         f"/produtos/{produto['id']}/editar",
         data={
