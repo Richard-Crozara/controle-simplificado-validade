@@ -1,6 +1,8 @@
 
-import pytest
+import re
 from datetime import date, timedelta
+
+import pytest
 
 import database
 from app import app, classificar_validade
@@ -9,7 +11,13 @@ from app import app, classificar_validade
 @pytest.fixture
 def cliente_sem_login(tmp_path, monkeypatch):
     monkeypatch.setattr(database, "DATABASE", tmp_path / "teste.db")
+
+    app.config["TESTING"] = True
+    app.config["SECRET_KEY"] = "chave-secreta-apenas-para-testes"
+    app.config["WTF_CSRF_ENABLED"] = True
+
     database.inicializar_banco()
+
     return app.test_client()
 
 
@@ -25,6 +33,21 @@ def cliente(cliente_sem_login):
     return cliente_sem_login
 
 
+def obter_token_csrf(cliente, pagina):
+    resposta = cliente.get(pagina)
+
+    assert resposta.status_code == 200
+
+    token = re.search(
+        rb'name="csrf_token" value="([^"]+)"',
+        resposta.data
+    )
+
+    assert token is not None
+
+    return token.group(1).decode("utf-8")
+
+
 def test_produtos_exige_login(cliente_sem_login):
     resposta = cliente_sem_login.get("/produtos")
 
@@ -34,13 +57,15 @@ def test_produtos_exige_login(cliente_sem_login):
 
 def test_cadastro_de_produto_valido(cliente):
     validade = (date.today() + timedelta(days=120)).isoformat()
+    token = obter_token_csrf(cliente, "/produtos")
 
     resposta = cliente.post(
         "/produtos",
         data={
             "nome": "Arroz teste",
             "quantidade": "10",
-            "validade": validade
+            "validade": validade,
+            "csrf_token": token
         },
         follow_redirects=True
     )
@@ -56,12 +81,15 @@ def test_cadastro_de_produto_valido(cliente):
 
 
 def test_cadastro_rejeita_quantidade_zero(cliente):
+    token = obter_token_csrf(cliente, "/produtos")
+
     resposta = cliente.post(
         "/produtos",
         data={
             "nome": "Produto teste",
             "quantidade": "0",
-            "validade": (date.today() + timedelta(days=120)).isoformat()
+            "validade": (date.today() + timedelta(days=120)).isoformat(),
+            "csrf_token": token
         },
         follow_redirects=True
     )
@@ -75,12 +103,15 @@ def test_cadastro_rejeita_quantidade_zero(cliente):
 
 
 def test_cadastro_rejeita_quantidade_nao_inteira(cliente):
+    token = obter_token_csrf(cliente, "/produtos")
+
     resposta = cliente.post(
         "/produtos",
         data={
             "nome": "Produto teste",
             "quantidade": "abc",
-            "validade": (date.today() + timedelta(days=120)).isoformat()
+            "validade": (date.today() + timedelta(days=120)).isoformat(),
+            "csrf_token": token
         },
         follow_redirects=True
     )
@@ -94,12 +125,15 @@ def test_cadastro_rejeita_quantidade_nao_inteira(cliente):
 
 
 def test_cadastro_rejeita_data_invalida(cliente):
+    token = obter_token_csrf(cliente, "/produtos")
+
     resposta = cliente.post(
         "/produtos",
         data={
             "nome": "Produto teste",
             "quantidade": "5",
-            "validade": "data-invalida"
+            "validade": "data-invalida",
+            "csrf_token": token
         },
         follow_redirects=True
     )
@@ -179,12 +213,18 @@ def test_edicao_de_produto_com_sucesso(cliente):
 
     nova_validade = (date.today() + timedelta(days=180)).isoformat()
 
+    token = obter_token_csrf(
+        cliente,
+        f"/produtos/{produto['id']}/editar"
+    )
+
     resposta = cliente.post(
         f"/produtos/{produto['id']}/editar",
         data={
             "nome": "Produto atualizado",
             "quantidade": "8",
-            "validade": nova_validade
+            "validade": nova_validade,
+            "csrf_token": token
         },
         follow_redirects=True
     )
@@ -210,12 +250,18 @@ def test_edicao_rejeita_quantidade_invalida(cliente):
 
     produto = database.listar_produtos(1)[0]
 
+    token = obter_token_csrf(
+        cliente,
+        f"/produtos/{produto['id']}/editar"
+    )
+
     resposta = cliente.post(
         f"/produtos/{produto['id']}/editar",
         data={
             "nome": "Produto alterado",
             "quantidade": "0",
-            "validade": validade
+            "validade": validade,
+            "csrf_token": token
         },
         follow_redirects=True
     )
@@ -239,9 +285,13 @@ def test_exclusao_de_produto_com_sucesso(cliente):
     )
 
     produto = database.listar_produtos(1)[0]
+    token = obter_token_csrf(cliente, "/produtos")
 
     resposta = cliente.post(
         f"/produtos/{produto['id']}/excluir",
+        data={
+            "csrf_token": token
+        },
         follow_redirects=True
     )
 
@@ -262,12 +312,18 @@ def test_usuario_nao_edita_produto_de_outro_usuario(cliente):
 
     produto = database.listar_produtos(outro["id"])[0]
 
+    token = obter_token_csrf(
+        cliente,
+        f"/produtos/{produto['id']}/editar"
+    )
+
     resposta = cliente.post(
         f"/produtos/{produto['id']}/editar",
         data={
             "nome": "Tentativa de alteração",
             "quantidade": "9",
-            "validade": (date.today() + timedelta(days=180)).isoformat()
+            "validade": (date.today() + timedelta(days=180)).isoformat(),
+            "csrf_token": token
         },
         follow_redirects=True
     )
@@ -292,9 +348,13 @@ def test_usuario_nao_exclui_produto_de_outro_usuario(cliente):
     )
 
     produto = database.listar_produtos(outro["id"])[0]
+    token = obter_token_csrf(cliente, "/produtos")
 
     resposta = cliente.post(
         f"/produtos/{produto['id']}/excluir",
+        data={
+            "csrf_token": token
+        },
         follow_redirects=True
     )
 
