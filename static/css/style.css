@@ -1,0 +1,19 @@
+/*
+ * Controle Simplificado de Validade
+ * Estilos compartilhados da aplicação
+ */
+
+:root {
+    --azul-escuro: #103d73;
+    --azul-principal: #1462b3;
+    --azul-claro: #eaf2fc;
+    --branco: #ffffff;
+
+    --texto: #183153;
+    --fundo: #f4f7fb;
+    --borda: #d5dfeb;
+
+    --sucesso: #16803c;
+    --atencao: #a86600;
+    --perigo: #b42318;
+}
