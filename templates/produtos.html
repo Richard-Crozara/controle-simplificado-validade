@@ -153,7 +153,12 @@
                                     <tr>
                                         <td>{{ produto.nome }}</td>
                                         <td>{{ produto.quantidade }}</td>
-                                        <td>{{ produto.validade }}</td>
+                                        
+                                        <td>
+                                            {% set partes_data = produto.validade.split('-') %}
+                                            {{ partes_data[2] }}/{{ partes_data[1] }}/{{ partes_data[0] }}
+                                        </td>
+
 
                                         <td>
                                             {% if produto.situacao == "Vencido" %}
