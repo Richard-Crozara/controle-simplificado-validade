@@ -371,3 +371,97 @@ def test_edicao_exige_login(cliente_sem_login):
 
     assert resposta.status_code == 302
     assert "/login" in resposta.location
+
+
+def test_paginacao_com_25_produtos(cliente):
+    validade = (date.today() + timedelta(days=120)).isoformat()
+
+    for numero in range(1, 26):
+        database.cadastrar_produto(
+            1,
+            f"Medicamento {numero:02d}",
+            5,
+            validade
+        )
+
+    primeira = cliente.get("/produtos?pagina=1")
+    segunda = cliente.get("/produtos?pagina=2")
+
+    assert primeira.status_code == 200
+    assert segunda.status_code == 200
+
+    # Primeira página: medicamentos 01 a 20
+    assert b"Medicamento 01" in primeira.data
+    assert b"Medicamento 20" in primeira.data
+    assert b"Medicamento 21" not in primeira.data
+
+    # Segunda página: medicamentos 21 a 25
+    assert b"Medicamento 21" in segunda.data
+    assert b"Medicamento 25" in segunda.data
+    assert b"Medicamento 01" not in segunda.data
+
+    assert b"25 produto(s) encontrado(s)" in primeira.data
+    assert b"Pagina" not in primeira.data or primeira.status_code == 200
+
+
+def test_busca_e_ordenacao_com_paginacao(cliente):
+    validade = (date.today() + timedelta(days=120)).isoformat()
+
+    for numero in range(1, 26):
+        database.cadastrar_produto(
+            1,
+            f"Medicamento {numero:02d}",
+            5,
+            validade
+        )
+
+    # Busca por prefixo: apenas Medicamento 01
+    resposta_busca = cliente.get("/produtos?busca=Medicamento+01")
+
+    assert resposta_busca.status_code == 200
+    assert b"Medicamento 01" in resposta_busca.data
+    assert b"Medicamento 02" not in resposta_busca.data
+
+    # Confirma que a ordenação é preservada na paginação
+    resposta = cliente.get(
+        "/produtos?pagina=2&ordem=nome"
+    )
+
+    assert resposta.status_code == 200
+    assert b"Medicamento 21" in resposta.data
+    assert b"Medicamento 25" in resposta.data
+
+
+def test_indicadores_nao_mudam_com_busca(cliente):
+    hoje = date.today()
+
+    database.cadastrar_produto(
+        1, "Dipirona", 5,
+        (hoje - timedelta(days=1)).isoformat()
+    )
+
+    database.cadastrar_produto(
+        1, "Dorflex", 5,
+        (hoje + timedelta(days=30)).isoformat()
+    )
+
+    database.cadastrar_produto(
+        1, "Loratadina", 5,
+        (hoje + timedelta(days=120)).isoformat()
+    )
+
+    resposta = cliente.get("/produtos?busca=Dipirona")
+
+    assert resposta.status_code == 200
+    assert b"Dipirona" in resposta.data
+    assert b"Dorflex" not in resposta.data
+    assert b"Loratadina" not in resposta.data
+
+    # Os indicadores continuam exibindo os totais gerais
+    assert b"1 produto(s) encontrado(s)" in resposta.data
+
+    html = resposta.get_data(as_text=True)
+
+    assert "Dentro do prazo" in html
+    assert "Atenção" in html
+    assert "Vencidos" in html

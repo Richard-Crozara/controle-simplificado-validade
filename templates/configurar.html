@@ -51,11 +51,7 @@
             {% endwith %}
 
             <form method="POST">
-                <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="{{ csrf_token() }}"
-                >
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                 <div class="campo">
                     <label for="usuario">Nome de usuário *</label>

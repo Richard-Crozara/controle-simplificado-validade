@@ -49,24 +49,21 @@
                 </p>
             </section>
 
-            {% set vencidos = produtos | selectattr('situacao', 'equalto', 'Vencido') | list %}
-            {% set atencao = produtos | selectattr('situacao', 'equalto', 'Atenção') | list %}
-            {% set no_prazo = produtos | selectattr('situacao', 'equalto', 'Dentro do prazo') | list %}
 
             <section class="indicadores" aria-label="Resumo dos produtos">
                 <div class="indicador sucesso">
                     <span>🟢 Dentro do prazo</span>
-                    <strong>{{ no_prazo | length }}</strong>
+                    <strong>{{ resumo["Dentro do prazo"] }}</strong>
                 </div>
 
                 <div class="indicador atencao">
                     <span>🟡 Atenção</span>
-                    <strong>{{ atencao | length }}</strong>
+                    <strong>{{ resumo["Atenção"] }}</strong>
                 </div>
 
                 <div class="indicador perigo">
                     <span>🔴 Vencidos</span>
-                    <strong>{{ vencidos | length }}</strong>
+                    <strong>{{ resumo["Vencido"] }}</strong>
                 </div>
             </section>
 
@@ -132,10 +129,60 @@
                 </form>
             </section>
 
-            <section class="painel" id="listagem">
-                <h2>☷ Produtos cadastrados</h2>
+            
+<section class="painel" id="listagem">
+    <h2>☷ Produtos cadastrados</h2>
 
-                {% if produtos %}
+    <form method="GET"
+          action="{{ url_for('produtos') }}#listagem"
+          class="filtros-produtos">
+
+        <div class="campo">
+            <label for="busca">Buscar medicamento</label>
+            <input
+                type="search"
+                id="busca"
+                name="busca"
+                value="{{ busca }}"
+                placeholder="Digite o nome do medicamento"
+            >
+        </div>
+
+        <div class="campo">
+            <label for="ordem">Ordenar produtos por</label>
+            <select id="ordem" name="ordem">
+                <option value="nome"
+                    {% if ordem == "nome" %}selected{% endif %}>
+                    Nome (A–Z)
+                </option>
+
+                <option value="validade"
+                    {% if ordem == "validade" %}selected{% endif %}>
+                    Validade mais próxima
+                </option>
+            </select>
+        </div>
+
+        <div class="acoes-form">
+            <button type="submit"
+                    class="botao botao-primario">
+                Buscar / Ordenar
+            </button>
+
+            <a class="botao"
+               href="{{ url_for('produtos') }}#listagem">
+                Limpar filtros
+            </a>
+        </div>
+    </form>
+
+    <p class="resultado-busca" role="status">
+    {{ total_produtos }} produto(s) encontrado(s).
+    Exibindo até 20 por página.
+</p>
+
+    {% if produtos %}
+
                     <div class="tabela-container">
                         <table>
                             <thead>
@@ -210,9 +257,47 @@
                             </tbody>
                         </table>
                     </div>
+
+
+{% if total_paginas > 1 %}
+    <nav class="paginacao"
+         aria-label="Navegação entre páginas de produtos">
+
+        {% if pagina > 1 %}
+            <a class="botao"
+               href="{{ url_for('produtos',
+                       pagina=pagina-1,
+                       busca=busca,
+                       ordem=ordem) }}#listagem">
+                ← Anterior
+            </a>
+        {% endif %}
+
+        <span>
+            Página {{ pagina }} de {{ total_paginas }}
+        </span>
+
+        {% if pagina < total_paginas %}
+            <a class="botao"
+               href="{{ url_for('produtos',
+                       pagina=pagina+1,
+                       busca=busca,
+                       ordem=ordem) }}#listagem">
+                Próxima →
+            </a>
+        {% endif %}
+
+    </nav>
+{% endif %}
+
+
                 {% else %}
-                    <p>Nenhum produto cadastrado ainda.</p>
-                {% endif %}
+    {% if busca %}
+        <p>Nenhum produto encontrado para "{{ busca }}".</p>
+    {% else %}
+        <p>Nenhum produto cadastrado ainda.</p>
+    {% endif %}
+{% endif %}
             </section>
         </main>
     </div>

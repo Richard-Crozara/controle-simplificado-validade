@@ -682,3 +682,84 @@ body.alto-contraste {
         padding: 25px 20px;
     }
 }
+
+
+/* Busca e ordenação de produtos */
+
+.filtros-produtos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 16px;
+    margin: 20px 0 14px;
+}
+
+.filtros-produtos .campo {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+.filtros-produtos .acoes-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+}
+
+.filtros-produtos input,
+.filtros-produtos select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.resultado-busca {
+    margin: 12px 0;
+    font-size: 0.9rem;
+}
+
+/* Visualização um pouco mais compacta */
+
+.tabela-container th,
+.tabela-container td {
+    padding: 10px 12px;
+}
+
+.tabela-container .botao {
+    padding: 8px 12px;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 600px) {
+    .filtros-produtos {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filtros-produtos .campo,
+    .filtros-produtos .acoes-form {
+        width: 100%;
+    }
+}
+
+
+/* Paginação dos medicamentos */
+
+.paginacao {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 20px;
+}
+
+.paginacao span {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .paginacao {
+        gap: 10px;
+    }
+}
