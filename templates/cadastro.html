@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar conta | Controle Simplificado de Validade</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+</head>
+
+<body class="pagina-login">
+
+    <header class="topbar">
+        <div class="marca">
+            <span class="marca-icone" aria-hidden="true">💊</span>
+            <h1>Controle Simplificado de Validade</h1>
+        </div>
+    </header>
+
+    <main class="login-layout">
+
+        <section class="login-card" aria-labelledby="titulo-cadastro">
+
+            <div class="login-simbolo" aria-hidden="true">📝</div>
+
+            <h2 id="titulo-cadastro">Criar conta</h2>
+
+            <p class="login-descricao">
+                Cadastre-se gratuitamente para começar a
+                acompanhar a validade dos seus produtos.
+            </p>
+
+            {% with mensagens = get_flashed_messages() %}
+                {% for mensagem in mensagens %}
+                    <p class="mensagem" role="status">
+                        {{ mensagem }}
+                    </p>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST">
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <div class="campo">
+                    <label for="usuario">Usuário</label>
+                    <input
+                        type="text"
+                        id="usuario"
+                        name="usuario"
+                        placeholder="Escolha um nome de usuário"
+                        autocomplete="username"
+                        minlength="3"
+                        maxlength="50"
+                        required
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="senha">Senha</label>
+                    <input
+                        type="password"
+                        id="senha"
+                        name="senha"
+                        placeholder="Crie uma senha"
+                        autocomplete="new-password"
+                        minlength="8"
+                        required
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="confirmar_senha">Confirmar senha</label>
+                    <input
+                        type="password"
+                        id="confirmar_senha"
+                        name="confirmar_senha"
+                        placeholder="Digite a senha novamente"
+                        autocomplete="new-password"
+                        minlength="8"
+                        required
+                    >
+                </div>
+
+                <button
+                    class="botao botao-primario login-entrar"
+                    type="submit"
+                >
+                    Criar minha conta
+                </button>
+            </form>
+
+            <p class="login-observacao">
+                Já possui uma conta?
+                <a href="{{ url_for('login') }}">
+                    Faça login
+                </a>
+            </p>
+
+        </section>
+
+        <aside class="login-informacoes" aria-label="Benefícios do sistema">
+            <h2>Mais controle, menos desperdício.</h2>
+
+            <p>
+                Uma ferramenta simples para acompanhar a validade
+                dos produtos selecionados.
+            </p>
+
+            <ul>
+                <li>Identifique produtos próximos do vencimento.</li>
+                <li>Visualize alertas de validade de forma organizada.</li>
+                <li>Facilite a conferência periódica dos produtos.</li>
+                <li>Apoie ações para evitar perdas e desperdícios.</li>
+            </ul>
+
+            <p class="login-destaque">
+                Organização e praticidade no dia a dia.
+            </p>
+        </aside>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/acessibilidade.js') }}"></script>
+
+</body>
+</html>
