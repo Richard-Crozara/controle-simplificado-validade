@@ -314,6 +314,46 @@ def configurar():
     return render_template("configurar.html")
 
 
+
+@app.route("/cadastro", methods=["GET", "POST"])
+def cadastro():
+    if "usuario_id" in session:
+        return redirect(url_for("inicio"))
+
+    if request.method == "POST":
+        usuario = request.form.get("usuario", "").strip()
+        senha = request.form.get("senha", "")
+        confirmar_senha = request.form.get("confirmar_senha", "")
+
+        if len(usuario) < 3:
+            flash("O usuário deve ter pelo menos 3 caracteres.")
+            return render_template("cadastro.html")
+
+        if len(senha) < 8:
+            flash("A senha deve ter pelo menos 8 caracteres.")
+            return render_template("cadastro.html")
+
+        if senha != confirmar_senha:
+            flash("As senhas não coincidem.")
+            return render_template("cadastro.html")
+
+        if buscar_usuario(usuario):
+            flash("Este nome de usuário já está em uso.")
+            return render_template("cadastro.html")
+
+        try:
+            criar_usuario(usuario, senha)
+        except Exception:
+            app.logger.exception("Falha ao cadastrar usuário")
+            flash("Não foi possível criar a conta. Tente novamente.")
+            return render_template("cadastro.html")
+
+        flash("Conta criada com sucesso. Faça login para continuar.")
+        return redirect(url_for("login"))
+
+    return render_template("cadastro.html")
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if "usuario_id" in session:
