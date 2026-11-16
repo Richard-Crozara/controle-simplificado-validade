@@ -630,3 +630,55 @@ body.alto-contraste {
         gap: 0;
     }
 }
+
+
+/* Configuração inicial */
+
+.configuracao-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 90px);
+    padding: 40px 16px;
+}
+
+.configuracao-card {
+    width: min(100%, 520px);
+    padding: 38px;
+}
+
+.configuracao-card h2 {
+    margin-top: 0;
+    text-align: center;
+    color: var(--azul-escuro);
+}
+
+.configuracao-card .campo {
+    margin-bottom: 20px;
+}
+
+.configuracao-aviso {
+    padding: 15px 18px;
+    margin-bottom: 25px;
+    border-radius: 12px;
+    background: #eaf2fc;
+    border-left: 4px solid #1462b3;
+    color: #183153;
+}
+
+.configuracao-aviso p {
+    margin: 5px 0 0;
+    font-size: 14px;
+}
+
+.campo-ajuda {
+    font-size: 13px;
+    color: #506680;
+    margin: 7px 0 0;
+}
+
+@media (max-width: 480px) {
+    .configuracao-card {
+        padding: 25px 20px;
+    }
+}
