@@ -116,7 +116,8 @@ def produtos():
         )
 
         flash("Produto cadastrado com sucesso.")
-        return redirect(url_for("produtos"))
+        return redirect(url_for("produtos") + "#cadastro")
+
 
     registros = listar_produtos(session["usuario_id"])
 
@@ -127,10 +128,77 @@ def produtos():
         item["situacao"] = classificar_validade(item["validade"])
         produtos_lista.append(item)
 
+    # Indicadores gerais, antes de aplicar filtros
+    resumo = {
+        "Vencido": 0,
+        "Atenção": 0,
+        "Dentro do prazo": 0
+    }
+
+    for produto in produtos_lista:
+        resumo[produto["situacao"]] += 1
+
+    # Busca por nome
+    busca = request.args.get("busca", "").strip()
+
+    
+    if busca:
+        produtos_lista = [
+            produto for produto in produtos_lista
+            if produto["nome"].casefold().startswith(busca.casefold())
+        ]
+
+
+    # Ordenação dos resultados
+    ordem = request.args.get("ordem", "nome")
+
+    if ordem == "validade":
+        produtos_lista.sort(
+            key=lambda produto: (
+                produto["validade"],
+                produto["nome"].casefold()
+            )
+        )
+    else:
+        ordem = "nome"
+        produtos_lista.sort(
+            key=lambda produto: produto["nome"].casefold()
+        )
+
+    
+    # Paginação dos resultados filtrados
+    por_pagina = 20
+    total_produtos = len(produtos_lista)
+
+    total_paginas = max(
+        1,
+        (total_produtos + por_pagina - 1) // por_pagina
+    )
+
+    try:
+        pagina = int(request.args.get("pagina", "1"))
+    except (ValueError, TypeError):
+        pagina = 1
+
+    pagina = max(1, min(pagina, total_paginas))
+
+    inicio_pagina = (pagina - 1) * por_pagina
+    fim_pagina = inicio_pagina + por_pagina
+
+    produtos_pagina = produtos_lista[inicio_pagina:fim_pagina]
+
     return render_template(
         "produtos.html",
-        produtos=produtos_lista
+        produtos=produtos_pagina,
+        resumo=resumo,
+        busca=busca,
+        ordem=ordem,
+        pagina=pagina,
+        total_paginas=total_paginas,
+        total_produtos=total_produtos
     )
+
+
 
 
 @app.route("/produtos/<int:produto_id>/editar", methods=["GET", "POST"])
@@ -280,4 +348,4 @@ def logout():
 
 if __name__ == "__main__":
     inicializar_banco()
-    app.run(debug=True)
+    app.run(debug=os.environ.get("FLASK_DEBUG", "0") == "1")

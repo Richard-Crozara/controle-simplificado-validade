@@ -3,125 +3,307 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Validade</title>
+    <title>Produtos | Controle Simplificado de Validade</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
-    <main>
-        <h1>Controle Simplificado de Validade</h1>
+    <header class="topbar">
+        <div class="marca">
+            <span class="marca-icone" aria-hidden="true">💊</span>
+            <h1>Controle Simplificado de Validade</h1>
+        </div>
 
-        <p>Bem-vindo, {{ session["usuario"] }}!</p>
+        <div class="acessibilidade" aria-label="Controles de acessibilidade">
+            <button type="button" id="contraste" aria-pressed="false">
+                Alto contraste
+            </button>
+            <button type="button" id="aumentar" aria-label="Aumentar tamanho da fonte">
+                A+
+            </button>
+            <button type="button" id="diminuir" aria-label="Diminuir tamanho da fonte">
+                A-
+            </button>
+        </div>
+    </header>
 
-        <form method="POST" action="{{ url_for('logout') }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit">Sair</button>
-        </form>
+    <div class="layout">
+        <nav class="sidebar" aria-label="Navegação principal">
+            <a href="#inicio" class="ativo">⌂ Início</a>
+            <a href="#cadastro">✚ Cadastrar produtos</a>
+            <a href="#listagem">☷ Situação dos produtos</a>
 
-        <section>
-            <h2>Cadastrar produto</h2>
-
-            {% with mensagens = get_flashed_messages() %}
-                {% for mensagem in mensagens %}
-                    <p>{{ mensagem }}</p>
-                {% endfor %}
-            {% endwith %}
-
-            <form method="POST">
+            <form method="POST" action="{{ url_for('logout') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                <div>
-                    <label for="nome">Nome do produto:</label>
-                    <input
-                        type="text"
-                        id="nome"
-                        name="nome"
-                        maxlength="150"
-                        required
-                    >
-                </div>
-
-                <div>
-                    <label for="quantidade">Quantidade:</label>
-                    <input
-                        type="number"
-                        id="quantidade"
-                        name="quantidade"
-                        min="1"
-                        step="1"
-                        required
-                    >
-                </div>
-
-                <div>
-                    <label for="validade">Data de validade:</label>
-                    <input
-                        type="date"
-                        id="validade"
-                        name="validade"
-                        required
-                    >
-                </div>
-
-                <button type="submit">Cadastrar produto</button>
+                <button type="submit">⇥ Sair</button>
             </form>
-        </section>
+        </nav>
 
-        <section>
-            <h2>Produtos cadastrados</h2>
+        <main class="conteudo" id="inicio">
+            <section class="painel">
+                <h2>Painel de controle</h2>
+                <p>Bem-vindo, {{ session["usuario"] }}!</p>
+                <p>
+                    Acompanhe os produtos cadastrados e identifique
+                    aqueles que precisam de atenção.
+                </p>
+            </section>
 
-            {% if produtos %}
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Produto</th>
-                            <th>Quantidade</th>
-                            <th>Validade</th>
-                            <th>Situação</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
-                        {% for produto in produtos %}
-                            <tr>
-                                <td>{{ produto.nome }}</td>
-                                <td>{{ produto.quantidade }}</td>
-                                <td>{{ produto.validade }}</td>
-                                <td>
-                                    {% if produto.situacao == "Vencido" %}
-                                        <strong>🔴 Vencido</strong>
-                                    {% elif produto.situacao == "Atenção" %}
-                                        <strong>🟡 Atenção</strong>
-                                    {% else %}
-                                        <strong>🟢 Dentro do prazo</strong>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{{ url_for('editar_produto', produto_id=produto.id) }}">
-                                        Editar
-                                    </a>
+            <section class="indicadores" aria-label="Resumo dos produtos">
+                <div class="indicador sucesso">
+                    <span>🟢 Dentro do prazo</span>
+                    <strong>{{ resumo["Dentro do prazo"] }}</strong>
+                </div>
 
-                                    <form
-                                        method="POST"
-                                        action="{{ url_for('excluir_produto_rota', produto_id=produto.id) }}"
-                                    >
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="indicador atencao">
+                    <span>🟡 Atenção</span>
+                    <strong>{{ resumo["Atenção"] }}</strong>
+                </div>
 
-                                        <button
-                                            type="submit"
-                                            onclick="return confirm('Deseja realmente excluir este produto?')"
-                                        >
-                                            Excluir
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p>Nenhum produto cadastrado ainda.</p>
-            {% endif %}
-        </section>
-    </main>
+                <div class="indicador perigo">
+                    <span>🔴 Vencidos</span>
+                    <strong>{{ resumo["Vencido"] }}</strong>
+                </div>
+            </section>
+
+            <section class="painel" id="cadastro">
+                <h2>📋 Cadastro de produtos</h2>
+                <p>Preencha os dados do produto selecionado.</p>
+
+                {% with mensagens = get_flashed_messages() %}
+                    {% for mensagem in mensagens %}
+                        <p class="mensagem" role="status">{{ mensagem }}</p>
+                    {% endfor %}
+                {% endwith %}
+
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="form-grid">
+                        <div class="campo">
+                            <label for="nome">Nome do produto *</label>
+                            <input
+                                type="text"
+                                id="nome"
+                                name="nome"
+                                maxlength="150"
+                                placeholder="Ex.: Dipirona 500 mg"
+                                required
+                            >
+                        </div>
+
+                        <div class="campo">
+                            <label for="quantidade">Quantidade *</label>
+                            <input
+                                type="number"
+                                id="quantidade"
+                                name="quantidade"
+                                min="1"
+                                step="1"
+                                placeholder="Ex.: 10"
+                                required
+                            >
+                        </div>
+
+                        <div class="campo">
+                            <label for="validade">Data de validade *</label>
+                            <input
+                                type="date"
+                                id="validade"
+                                name="validade"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div class="acoes-form">
+                        <button class="botao botao-primario" type="submit">
+                            Salvar produto
+                        </button>
+
+                        <button class="botao" type="reset">
+                            Limpar
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            
+<section class="painel" id="listagem">
+    <h2>☷ Produtos cadastrados</h2>
+
+    <form method="GET"
+          action="{{ url_for('produtos') }}#listagem"
+          class="filtros-produtos">
+
+        <div class="campo">
+            <label for="busca">Buscar medicamento</label>
+            <input
+                type="search"
+                id="busca"
+                name="busca"
+                value="{{ busca }}"
+                placeholder="Digite o nome do medicamento"
+            >
+        </div>
+
+        <div class="campo">
+            <label for="ordem">Ordenar produtos por</label>
+            <select id="ordem" name="ordem">
+                <option value="nome"
+                    {% if ordem == "nome" %}selected{% endif %}>
+                    Nome (A–Z)
+                </option>
+
+                <option value="validade"
+                    {% if ordem == "validade" %}selected{% endif %}>
+                    Validade mais próxima
+                </option>
+            </select>
+        </div>
+
+        <div class="acoes-form">
+            <button type="submit"
+                    class="botao botao-primario">
+                Buscar / Ordenar
+            </button>
+
+            <a class="botao"
+               href="{{ url_for('produtos') }}#listagem">
+                Limpar filtros
+            </a>
+        </div>
+    </form>
+
+    <p class="resultado-busca" role="status">
+    {{ total_produtos }} produto(s) encontrado(s).
+    Exibindo até 20 por página.
+</p>
+
+    {% if produtos %}
+
+                    <div class="tabela-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Produto</th>
+                                    <th scope="col">Quantidade</th>
+                                    <th scope="col">Validade</th>
+                                    <th scope="col">Situação</th>
+                                    <th scope="col">Ações</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for produto in produtos %}
+                                    <tr>
+                                        <td>{{ produto.nome }}</td>
+                                        <td>{{ produto.quantidade }}</td>
+                                        
+                                        <td>
+                                            {% set partes_data = produto.validade.split('-') %}
+                                            {{ partes_data[2] }}/{{ partes_data[1] }}/{{ partes_data[0] }}
+                                        </td>
+
+
+                                        <td>
+                                            {% if produto.situacao == "Vencido" %}
+                                                <span class="situacao situacao-vencido">
+                                                    🔴 Vencido
+                                                </span>
+                                            {% elif produto.situacao == "Atenção" %}
+                                                <span class="situacao situacao-atencao">
+                                                    🟡 Atenção
+                                                </span>
+                                            {% else %}
+                                                <span class="situacao situacao-prazo">
+                                                    🟢 Dentro do prazo
+                                                </span>
+                                            {% endif %}
+                                        </td>
+
+                                        <td>
+                                            <div class="acoes">
+                                                <a
+                                                    class="botao"
+                                                    href="{{ url_for('editar_produto', produto_id=produto.id) }}"
+                                                >
+                                                    Editar
+                                                </a>
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for('excluir_produto_rota', produto_id=produto.id) }}"
+                                                >
+                                                    <input
+                                                        type="hidden"
+                                                        name="csrf_token"
+                                                        value="{{ csrf_token() }}"
+                                                    >
+
+                                                    <button
+                                                        class="botao botao-perigo"
+                                                        type="submit"
+                                                        onclick="return confirm('Deseja realmente excluir este produto?')"
+                                                    >
+                                                        Excluir
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+
+{% if total_paginas > 1 %}
+    <nav class="paginacao"
+         aria-label="Navegação entre páginas de produtos">
+
+        {% if pagina > 1 %}
+            <a class="botao"
+               href="{{ url_for('produtos',
+                       pagina=pagina-1,
+                       busca=busca,
+                       ordem=ordem) }}#listagem">
+                ← Anterior
+            </a>
+        {% endif %}
+
+        <span>
+            Página {{ pagina }} de {{ total_paginas }}
+        </span>
+
+        {% if pagina < total_paginas %}
+            <a class="botao"
+               href="{{ url_for('produtos',
+                       pagina=pagina+1,
+                       busca=busca,
+                       ordem=ordem) }}#listagem">
+                Próxima →
+            </a>
+        {% endif %}
+
+    </nav>
+{% endif %}
+
+
+                {% else %}
+    {% if busca %}
+        <p>Nenhum produto encontrado para "{{ busca }}".</p>
+    {% else %}
+        <p>Nenhum produto cadastrado ainda.</p>
+    {% endif %}
+{% endif %}
+            </section>
+        </main>
+    </div>
+
+    
+<script src="{{ url_for('static', filename='js/acessibilidade.js') }}"></script>
+
 </body>
 </html>

@@ -1,46 +1,104 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuração inicial</title>
+
+    <title>Configuração inicial | Controle Simplificado de Validade</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
 </head>
-<body>
-    <main>
-        <h1>Controle Simplificado de Validade</h1>
-        <h2>Criar primeiro usuário</h2>
 
-        {% with mensagens = get_flashed_messages() %}
-            {% for mensagem in mensagens %}
-                <p>{{ mensagem }}</p>
-            {% endfor %}
-        {% endwith %}
+<body class="pagina-login">
 
-        <form method="POST">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <header class="topbar">
+        <div class="marca">
+            <span class="marca-icone" aria-hidden="true">💊</span>
+            <h1>Controle Simplificado de Validade</h1>
+        </div>
+    </header>
 
-            <label for="usuario">Usuário:</label>
-            <input
-                type="text"
-                id="usuario"
-                name="usuario"
-                minlength="3"
-                required
-                autocomplete="username"
-            >
+    <main class="configuracao-container">
+        <section class="login-card configuracao-card" aria-labelledby="titulo-configuracao">
 
-            <label for="senha">Senha:</label>
-            <input
-                type="password"
-                id="senha"
-                name="senha"
-                minlength="8"
-                required
-                autocomplete="new-password"
-            >
+            <div class="login-simbolo" aria-hidden="true">⚙️</div>
 
-            <button type="submit">Criar usuário</button>
-        </form>
+            <h2 id="titulo-configuracao">Configuração inicial</h2>
+
+            <p class="login-descricao">
+                Crie o primeiro usuário para começar a utilizar
+                o Controle Simplificado de Validade.
+            </p>
+
+            <div class="configuracao-aviso">
+                <strong>Primeiro acesso</strong>
+                <p>
+                    Esta etapa deve ser realizada pelo responsável
+                    pela configuração do sistema.
+                </p>
+            </div>
+
+            {% with mensagens = get_flashed_messages() %}
+                {% for mensagem in mensagens %}
+                    <p class="mensagem" role="status">
+                        {{ mensagem }}
+                    </p>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="campo">
+                    <label for="usuario">Nome de usuário *</label>
+                    <input
+                        type="text"
+                        id="usuario"
+                        name="usuario"
+                        minlength="3"
+                        placeholder="Mínimo de 3 caracteres"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="senha">Senha *</label>
+                    <input
+                        type="password"
+                        id="senha"
+                        name="senha"
+                        minlength="8"
+                        placeholder="Mínimo de 8 caracteres"
+                        autocomplete="new-password"
+                        required
+                    >
+                    <p class="campo-ajuda">
+                        Utilize uma senha exclusiva e difícil de adivinhar.
+                    </p>
+                </div>
+
+                <button
+                    type="submit"
+                    class="botao botao-primario login-entrar"
+                >
+                    Criar primeiro usuário
+                </button>
+            </form>
+
+            <p class="login-observacao">
+                Após a configuração, utilize a tela de login
+                para acessar o sistema.
+            </p>
+
+        </section>
     </main>
+
+    <script src="{{ url_for('static', filename='js/acessibilidade.js') }}"></script>
+
 </body>
 </html>

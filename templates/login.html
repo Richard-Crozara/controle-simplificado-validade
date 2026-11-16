@@ -1,46 +1,110 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login | Controle Simplificado de Validade</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
 </head>
-<body>
-    <main>
-        <h1>Controle Simplificado de Validade</h1>
-        <h2>Entrar</h2>
 
-        {% with mensagens = get_flashed_messages() %}
-            {% for mensagem in mensagens %}
-                <p>{{ mensagem }}</p>
-            {% endfor %}
-        {% endwith %}
+<body class="pagina-login">
 
-        <form method="POST">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <header class="topbar">
+        <div class="marca">
+            <span class="marca-icone" aria-hidden="true">💊</span>
+            <h1>Controle Simplificado de Validade</h1>
+        </div>
+    </header>
 
-            <label for="usuario">Usuário:</label>
-            <input
-                type="text"
-                id="usuario"
-                name="usuario"
-                required
-                autocomplete="username"
-            >
+    <main class="login-layout">
 
-            <label for="senha">Senha:</label>
-            <input
-                type="password"
-                id="senha"
-                name="senha"
-                required
-                autocomplete="current-password"
-            >
+        <section class="login-card" aria-labelledby="titulo-login">
 
-            <button type="submit">Entrar</button>
-        </form>
+            <div class="login-simbolo" aria-hidden="true">📅</div>
 
-        <p>Não possui uma conta? A configuração inicial deve ser realizada primeiro.</p>
+            <h2 id="titulo-login">Bem-vindo!</h2>
+
+            <p class="login-descricao">
+                Faça login para acessar o sistema de controle de validade.
+            </p>
+
+            {% with mensagens = get_flashed_messages() %}
+                {% for mensagem in mensagens %}
+                    <p class="mensagem" role="status">
+                        {{ mensagem }}
+                    </p>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="campo">
+                    <label for="usuario">Usuário</label>
+                    <input
+                        type="text"
+                        id="usuario"
+                        name="usuario"
+                        placeholder="Digite seu usuário"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="senha">Senha</label>
+                    <input
+                        type="password"
+                        id="senha"
+                        name="senha"
+                        placeholder="Digite sua senha"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <button
+                    class="botao botao-primario login-entrar"
+                    type="submit"
+                >
+                    Entrar no sistema
+                </button>
+            </form>
+
+            <p class="login-observacao">
+                O primeiro acesso deve ser configurado pelo responsável
+                pelo sistema.
+            </p>
+        </section>
+
+        <aside class="login-informacoes" aria-label="Benefícios do sistema">
+            <h2>Mais controle, menos desperdício.</h2>
+
+            <p>
+                Uma ferramenta simples para acompanhar a validade
+                dos produtos selecionados.
+            </p>
+
+            <ul>
+                <li>Identifique produtos próximos do vencimento.</li>
+                <li>Visualize alertas de validade de forma organizada.</li>
+                <li>Facilite a conferência periódica dos produtos.</li>
+                <li>Apoie ações para evitar perdas e desperdícios.</li>
+            </ul>
+
+            <p class="login-destaque">
+                Organização e praticidade no dia a dia da farmácia.
+            </p>
+        </aside>
+
     </main>
+
+    <script src="{{ url_for('static', filename='js/acessibilidade.js') }}"></script>
+
 </body>
 </html>
