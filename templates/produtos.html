@@ -302,35 +302,8 @@
         </main>
     </div>
 
-    <script>
-        const botaoContraste = document.getElementById("contraste");
-        const botaoAumentar = document.getElementById("aumentar");
-        const botaoDiminuir = document.getElementById("diminuir");
+    
+<script src="{{ url_for('static', filename='js/acessibilidade.js') }}"></script>
 
-        let tamanhoFonte = 100;
-
-        botaoContraste.addEventListener("click", function () {
-            const ativado = document.body.classList.toggle("alto-contraste");
-
-            botaoContraste.setAttribute(
-                "aria-pressed",
-                String(ativado)
-            );
-
-            botaoContraste.textContent = ativado
-                ? "Contraste normal"
-                : "Alto contraste";
-        });
-
-        botaoAumentar.addEventListener("click", function () {
-            tamanhoFonte = Math.min(tamanhoFonte + 10, 150);
-            document.documentElement.style.fontSize = tamanhoFonte + "%";
-        });
-
-        botaoDiminuir.addEventListener("click", function () {
-            tamanhoFonte = Math.max(tamanhoFonte - 10, 80);
-            document.documentElement.style.fontSize = tamanhoFonte + "%";
-        });
-    </script>
 </body>
 </html>

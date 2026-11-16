@@ -763,3 +763,76 @@ body.alto-contraste {
         gap: 10px;
     }
 }
+
+
+/* Alto contraste nas telas de login e configuração */
+
+body.alto-contraste.pagina-login,
+body.alto-contraste.pagina-configuracao {
+    background: #000 !important;
+    color: #fff !important;
+}
+
+body.alto-contraste .login-card,
+body.alto-contraste .login-informacoes,
+body.alto-contraste .configuracao-card,
+body.alto-contraste .configuracao-informacoes {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
+}
+
+body.alto-contraste .login-card h2,
+body.alto-contraste .login-card p,
+body.alto-contraste .login-informacoes h2,
+body.alto-contraste .login-informacoes p,
+body.alto-contraste .login-informacoes li,
+body.alto-contraste .configuracao-card h2,
+body.alto-contraste .configuracao-card p,
+body.alto-contraste .configuracao-informacoes h2,
+body.alto-contraste .configuracao-informacoes p,
+body.alto-contraste .configuracao-informacoes li {
+    color: #fff !important;
+}
+
+body.alto-contraste .login-card input,
+body.alto-contraste .configuracao-card input {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
+}
+
+body.alto-contraste .login-card input::placeholder,
+body.alto-contraste .configuracao-card input::placeholder {
+    color: #ddd !important;
+}
+
+body.alto-contraste .login-card .botao-primario,
+body.alto-contraste .configuracao-card .botao-primario {
+    background: #ffe600 !important;
+    color: #000 !important;
+    border: 2px solid #ffe600 !important;
+}
+
+body.alto-contraste .login-card input:focus-visible,
+body.alto-contraste .configuracao-card input:focus-visible,
+body.alto-contraste .login-card button:focus-visible,
+body.alto-contraste .configuracao-card button:focus-visible {
+    outline: 3px solid #ffe600 !important;
+    outline-offset: 3px;
+}
+
+
+/* Alto contraste: configuração inicial */
+
+body.alto-contraste .configuracao-aviso {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #ffe600 !important;
+}
+
+body.alto-contraste .configuracao-aviso strong,
+body.alto-contraste .configuracao-aviso p,
+body.alto-contraste .configuracao-card .campo-ajuda {
+    color: #fff !important;
+}

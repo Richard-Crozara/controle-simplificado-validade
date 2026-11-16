@@ -116,7 +116,7 @@ def produtos():
         )
 
         flash("Produto cadastrado com sucesso.")
-        return redirect(url_for("produtos"))
+        return redirect(url_for("produtos") + "#cadastro")
 
 
     registros = listar_produtos(session["usuario_id"])
